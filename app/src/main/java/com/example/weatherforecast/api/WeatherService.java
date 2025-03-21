@@ -1,6 +1,6 @@
 package com.example.weatherforecast.api;
 
-import com.example.weatherforecast.model.WeatherResponse;
+import com.example.weatherforecast.models.WeatherResponse;
 import retrofit2.Call;
 import retrofit2.http.GET;
 import retrofit2.http.Path;

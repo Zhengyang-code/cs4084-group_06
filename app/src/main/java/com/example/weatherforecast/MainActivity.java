@@ -10,7 +10,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.weatherforecast.api.ApiClient;
 import com.example.weatherforecast.api.WeatherService;
-import com.example.weatherforecast.model.WeatherResponse;
+import com.example.weatherforecast.models.WeatherResponse;
 import com.google.gson.Gson;
 
 import retrofit2.Call;
