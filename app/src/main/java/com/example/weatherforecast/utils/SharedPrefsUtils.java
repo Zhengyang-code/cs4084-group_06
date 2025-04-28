@@ -23,13 +23,15 @@ public class SharedPrefsUtils {
     private static final String KEY_NOTIFICATION_ENABLED = "notification_enabled";
     private static final String KEY_DARK_MODE = "dark_mode";
     private static final String KEY_LAST_LOCATION = "last_location";
+    private static final String KEY_CACHED_WEATHER = "cached_weather";
+    private static final String KEY_REFRESH_NEEDED = "refresh_needed";
 
     /**
      * Get SharedPreferences instance
      * @param context Application context
      * @return SharedPreferences instance
      */
-    private static SharedPreferences getPrefs(Context context) {
+    public static SharedPreferences getPrefs(Context context) {
         return context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
     }
 
@@ -174,6 +176,48 @@ public class SharedPrefsUtils {
 
         Gson gson = new Gson();
         return gson.fromJson(json, City.class);
+    }
+
+    /**
+     * Save string value
+     * @param context Application context
+     * @param key Preference key
+     * @param value String value
+     */
+    public static void putString(Context context, String key, String value) {
+        getPrefs(context).edit().putString(key, value).apply();
+    }
+
+    /**
+     * Get string value
+     * @param context Application context
+     * @param key Preference key
+     * @param defaultValue Default value
+     * @return String value
+     */
+    public static String getString(Context context, String key, String defaultValue) {
+        return getPrefs(context).getString(key, defaultValue);
+    }
+
+    /**
+     * Save boolean value
+     * @param context Application context
+     * @param key Preference key
+     * @param value Boolean value
+     */
+    public static void putBoolean(Context context, String key, boolean value) {
+        getPrefs(context).edit().putBoolean(key, value).apply();
+    }
+
+    /**
+     * Get boolean value
+     * @param context Application context
+     * @param key Preference key
+     * @param defaultValue Default value
+     * @return Boolean value
+     */
+    public static boolean getBoolean(Context context, String key, boolean defaultValue) {
+        return getPrefs(context).getBoolean(key, defaultValue);
     }
 
     /**

@@ -23,7 +23,6 @@ import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.TimeUnit;
@@ -43,6 +42,7 @@ public class LocationUtils {
 
     /**
      * Constructor
+     * @param context Application context
      */
     public LocationUtils(Context context) {
         this.context = context;
@@ -50,25 +50,32 @@ public class LocationUtils {
     }
 
     /**
+     * Interface for location result callback
+     */
+    public interface LocationCallback {
+        void onLocationResult(Location location);
+    }
+
+    /**
      * Get the current device location
+     * @param callback Callback to return location result
      */
     public void getCurrentLocation(final LocationCallback callback) {
-        if (ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION)
-                != PackageManager.PERMISSION_GRANTED) {
+        if (ActivityCompat.checkSelfPermission(context,
+                Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             callback.onLocationResult(null);
             return;
         }
 
+        // Try to get last known location first (faster)
         fusedLocationClient.getLastLocation()
                 .addOnSuccessListener(new OnSuccessListener<Location>() {
                     @Override
                     public void onSuccess(Location location) {
                         if (location != null) {
-                            List<Location> locations = new ArrayList<>();
-                            locations.add(location);
-                            LocationResult locationResult = LocationResult.create(locations);
-                            callback.onLocationResult(locationResult);
+                            callback.onLocationResult(location);
                         } else {
+                            // If last location is null, request a fresh location
                             requestNewLocation(callback);
                         }
                     }
@@ -84,10 +91,11 @@ public class LocationUtils {
 
     /**
      * Request a new location update
+     * @param callback Callback to return location result
      */
     private void requestNewLocation(final LocationCallback callback) {
-        if (ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION)
-                != PackageManager.PERMISSION_GRANTED) {
+        if (ActivityCompat.checkSelfPermission(context,
+                Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             callback.onLocationResult(null);
             return;
         }
@@ -97,24 +105,19 @@ public class LocationUtils {
                 .setInterval(LOCATION_UPDATE_INTERVAL)
                 .setFastestInterval(LOCATION_FASTEST_INTERVAL);
 
-        // 👇 新加内部 LocationCallback
-        locationCallback = new LocationCallback() {
+        locationCallback = new com.google.android.gms.location.LocationCallback() {
             @Override
-            public void onLocationResult(LocationResult locationResult) {
-                if (locationResult != null && locationResult.getLastLocation() != null) {
-                    List<Location> locations = new ArrayList<>();
-                    locations.add(locationResult.getLastLocation());
-                    LocationResult result = LocationResult.create(locations);
-                    callback.onLocationResult(result);
-                } else {
-                    requestNewLocation(callback);
-                }
+            public void onLocationResult(@NonNull LocationResult locationResult) {
+                fusedLocationClient.removeLocationUpdates(locationCallback);
+                Location location = locationResult.getLastLocation();
+                callback.onLocationResult(location);
             }
         };
 
-        fusedLocationClient.requestLocationUpdates(locationRequest, locationCallback, Looper.getMainLooper());
+        fusedLocationClient.requestLocationUpdates(locationRequest,
+                locationCallback, Looper.getMainLooper());
 
-        // 超时10秒后如果没有拿到位置信息，则停止请求
+        // Set a timeout to stop location updates if we don't get a response in a reasonable time
         new android.os.Handler(Looper.getMainLooper()).postDelayed(new Runnable() {
             @Override
             public void run() {
@@ -123,11 +126,14 @@ public class LocationUtils {
                     callback.onLocationResult(null);
                 }
             }
-        }, 10000); // 10秒超时
+        }, 10000); // 10 seconds timeout
     }
 
     /**
      * Get city information from coordinates using Geocoder
+     * @param latitude Latitude coordinate
+     * @param longitude Longitude coordinate
+     * @return City object or null if geocoding fails
      */
     public City getCityFromCoordinates(double latitude, double longitude) {
         Geocoder geocoder = new Geocoder(context, Locale.getDefault());
@@ -151,11 +157,14 @@ public class LocationUtils {
         } catch (IOException e) {
             Log.e(TAG, "Error getting address from coordinates: " + e.getMessage());
         }
+
         return null;
     }
 
     /**
      * Get coordinates from a city name or address using Geocoder
+     * @param addressStr Address or city name string
+     * @return City object or null if geocoding fails
      */
     public City getCoordinatesFromAddress(String addressStr) {
         Geocoder geocoder = new Geocoder(context, Locale.getDefault());
@@ -182,6 +191,7 @@ public class LocationUtils {
         } catch (IOException e) {
             Log.e(TAG, "Error getting coordinates from address: " + e.getMessage());
         }
+
         return null;
     }
 
@@ -194,4 +204,3 @@ public class LocationUtils {
             locationCallback = null;
         }
     }
-}
