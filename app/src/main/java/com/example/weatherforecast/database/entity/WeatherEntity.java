@@ -2,6 +2,7 @@ package com.example.weatherforecast.database.entity;
 
 import androidx.room.Entity;
 import androidx.room.ForeignKey;
+import androidx.room.Ignore;
 import androidx.room.Index;
 import androidx.room.PrimaryKey;
 
@@ -23,6 +24,7 @@ public class WeatherEntity {
     public WeatherEntity() {
     }
 
+    @Ignore
     public WeatherEntity(long cityId, String weatherData) {
         this.cityId = cityId;
         this.weatherData = weatherData;
