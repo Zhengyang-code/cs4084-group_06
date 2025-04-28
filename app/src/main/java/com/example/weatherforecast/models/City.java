@@ -52,6 +52,18 @@ public class City implements Serializable {
         this.state = state;
     }
 
+    /**
+     * Constructor with city name and country
+     *
+     * @param name City name
+     * @param country Country name
+     */
+    public City(String name, String country) {
+        this.name = name;
+        this.country = country;
+    }
+
+
     // Getters and setters
     public String getName() {
         return name;
