@@ -14,13 +14,13 @@ import androidx.core.app.ActivityCompat;
 
 import com.example.weatherforecast.models.City;
 import com.google.android.gms.location.FusedLocationProviderClient;
-import com.google.android.gms.location.LocationCallback;
-import com.google.android.gms.location.LocationRequest;
-import com.google.android.gms.location.LocationResult;
 import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.location.LocationRequest;
+import com.google.android.gms.location.LocationCallback;
+import com.google.android.gms.location.LocationResult;
 import com.google.android.gms.location.Priority;
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.CancellationToken;
+import com.google.android.gms.tasks.OnTokenCanceledListener;
 
 import java.io.IOException;
 import java.util.List;
@@ -38,7 +38,7 @@ public class LocationUtils {
 
     private final Context context;
     private final FusedLocationProviderClient fusedLocationClient;
-    private LocationCallback locationCallback;
+    private com.google.android.gms.location.LocationCallback gmsLocationCallback;
 
     /**
      * Constructor
@@ -62,31 +62,37 @@ public class LocationUtils {
      */
     public void getCurrentLocation(final LocationCallback callback) {
         if (ActivityCompat.checkSelfPermission(context,
-                Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
+                ActivityCompat.checkSelfPermission(context,
+                        Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+
             callback.onLocationResult(null);
             return;
         }
 
         // Try to get last known location first (faster)
-        fusedLocationClient.getLastLocation()
-                .addOnSuccessListener(new OnSuccessListener<Location>() {
-                    @Override
-                    public void onSuccess(Location location) {
-                        if (location != null) {
-                            callback.onLocationResult(location);
-                        } else {
-                            // If last location is null, request a fresh location
-                            requestNewLocation(callback);
-                        }
-                    }
-                })
-                .addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        Log.e(TAG, "Error getting last location: " + e.getMessage());
-                        requestNewLocation(callback);
-                    }
-                });
+        fusedLocationClient.getCurrentLocation(Priority.PRIORITY_HIGH_ACCURACY, new CancellationToken() {
+            @Override
+            public boolean isCancellationRequested() {
+                return false;
+            }
+
+            @NonNull
+            @Override
+            public CancellationToken onCanceledRequested(@NonNull OnTokenCanceledListener onTokenCanceledListener) {
+                return this;
+            }
+        }).addOnSuccessListener(location -> {
+            if (location != null) {
+                callback.onLocationResult(location);
+            } else {
+                // If location is null, request a fresh location
+                requestNewLocation(callback);
+            }
+        }).addOnFailureListener(e -> {
+            Log.e(TAG, "Error getting last location: " + e.getMessage());
+            requestNewLocation(callback);
+        });
     }
 
     /**
@@ -95,36 +101,41 @@ public class LocationUtils {
      */
     private void requestNewLocation(final LocationCallback callback) {
         if (ActivityCompat.checkSelfPermission(context,
-                Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
+                ActivityCompat.checkSelfPermission(context,
+                        Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+
             callback.onLocationResult(null);
             return;
         }
 
-        LocationRequest locationRequest = LocationRequest.create()
-                .setPriority(Priority.PRIORITY_HIGH_ACCURACY)
-                .setInterval(LOCATION_UPDATE_INTERVAL)
-                .setFastestInterval(LOCATION_FASTEST_INTERVAL);
+        LocationRequest locationRequest = new LocationRequest.Builder(Priority.PRIORITY_HIGH_ACCURACY, LOCATION_UPDATE_INTERVAL)
+                .setMinUpdateIntervalMillis(LOCATION_FASTEST_INTERVAL)
+                .build();
 
-        locationCallback = new com.google.android.gms.location.LocationCallback() {
+        gmsLocationCallback = new com.google.android.gms.location.LocationCallback() {
             @Override
             public void onLocationResult(@NonNull LocationResult locationResult) {
-                fusedLocationClient.removeLocationUpdates(locationCallback);
-                Location location = locationResult.getLastLocation();
-                callback.onLocationResult(location);
+                super.onLocationResult(locationResult);
+                fusedLocationClient.removeLocationUpdates(gmsLocationCallback);
+
+                if (!locationResult.getLocations().isEmpty()) {
+                    Location location = locationResult.getLocations().get(0);
+                    callback.onLocationResult(location);
+                } else {
+                    callback.onLocationResult(null);
+                }
             }
         };
 
         fusedLocationClient.requestLocationUpdates(locationRequest,
-                locationCallback, Looper.getMainLooper());
+                gmsLocationCallback, Looper.getMainLooper());
 
         // Set a timeout to stop location updates if we don't get a response in a reasonable time
-        new android.os.Handler(Looper.getMainLooper()).postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                if (locationCallback != null) {
-                    fusedLocationClient.removeLocationUpdates(locationCallback);
-                    callback.onLocationResult(null);
-                }
+        new android.os.Handler(Looper.getMainLooper()).postDelayed(() -> {
+            if (gmsLocationCallback != null) {
+                fusedLocationClient.removeLocationUpdates(gmsLocationCallback);
+                callback.onLocationResult(null);
             }
         }, 10000); // 10 seconds timeout
     }
@@ -199,8 +210,9 @@ public class LocationUtils {
      * Stop location updates
      */
     public void stopLocationUpdates() {
-        if (locationCallback != null) {
-            fusedLocationClient.removeLocationUpdates(locationCallback);
-            locationCallback = null;
+        if (gmsLocationCallback != null) {
+            fusedLocationClient.removeLocationUpdates(gmsLocationCallback);
+            gmsLocationCallback = null;
         }
     }
+}
