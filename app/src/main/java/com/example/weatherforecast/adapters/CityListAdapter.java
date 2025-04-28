@@ -102,7 +102,7 @@ public class CityListAdapter extends RecyclerView.Adapter<CityListAdapter.ViewHo
 
             // Set favorite icon
             btnFavorite.setImageResource(city.isFavorite() ?
-                    R.drawable.ic_favorite : R.drawable.ic_favorite_border);
+                    R.drawable.ic_favorite : R.drawable.ic_remove);
         }
     }
 }
