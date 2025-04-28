@@ -1,6 +1,7 @@
 package com.example.weatherforecast.database.entity;
 
 import androidx.room.Entity;
+import androidx.room.Ignore;
 import androidx.room.PrimaryKey;
 
 @Entity(tableName = "cities")
@@ -20,6 +21,7 @@ public class CityEntity {
     public CityEntity() {
     }
 
+    @Ignore
     public CityEntity(String name, double latitude, double longitude, String country, String state) {
         this.name = name;
         this.latitude = latitude;
