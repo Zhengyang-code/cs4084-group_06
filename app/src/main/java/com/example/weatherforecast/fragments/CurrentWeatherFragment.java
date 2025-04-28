@@ -16,7 +16,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.weatherforecast.R;
-import com.example.weatherforecast.activities.WeatherAlertActivity;
+import com.example.weatherforecast.activity.WeatherAlertActivity;
 import com.example.weatherforecast.adapters.WeatherDetailAdapter;
 import com.example.weatherforecast.models.CurrentWeather;
 import com.example.weatherforecast.models.WeatherAlert;

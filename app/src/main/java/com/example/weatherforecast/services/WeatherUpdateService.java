@@ -14,7 +14,7 @@ import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
 
 import com.example.weatherforecast.R;
-import com.example.weatherforecast.activities.WeatherAlertActivity;
+import com.example.weatherforecast.activity.MainActivity; // 修改为已存在的Activity
 import com.example.weatherforecast.models.City;
 import com.example.weatherforecast.models.CurrentWeather;
 import com.example.weatherforecast.models.WeatherAlert;
@@ -147,14 +147,15 @@ public class WeatherUpdateService extends Service {
 
         WeatherAlert alert = weatherData.getAlerts().get(0);
 
-        // Create notification intent
-        Intent intent = new Intent(this, WeatherAlertActivity.class);
+        // Create notification intent - 使用MainActivity替代WeatherAlertActivity
+        Intent intent = new Intent(this, MainActivity.class);
+        intent.putExtra("show_alert", true); // 添加标记以在MainActivity中显示警报
         intent.putExtra("weather_data", weatherData);
         PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_IMMUTABLE);
 
-        // Build notification
+        // Build notification - 使用系统默认的警告图标
         NotificationCompat.Builder builder = new NotificationCompat.Builder(this, CHANNEL_ID)
-                .setSmallIcon(R.drawable.ic_notification)
+                .setSmallIcon(android.R.drawable.ic_dialog_alert) // 使用系统图标替代ic_notification
                 .setContentTitle("Weather Alert: " + alert.getEvent())
                 .setContentText(alert.getHeadline())
                 .setPriority(NotificationCompat.PRIORITY_HIGH)
@@ -163,7 +164,12 @@ public class WeatherUpdateService extends Service {
 
         // Show notification
         NotificationManagerCompat notificationManager = NotificationManagerCompat.from(this);
-        notificationManager.notify(NOTIFICATION_ID, builder.build());
+        try {
+            // 添加try-catch以避免缺少权限的崩溃
+            notificationManager.notify(NOTIFICATION_ID, builder.build());
+        } catch (SecurityException e) {
+            Log.e(TAG, "No notification permission: " + e.getMessage());
+        }
     }
 
     private void createNotificationChannel() {

@@ -6,7 +6,6 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import androidx.annotation.DrawableRes;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -15,41 +14,15 @@ import com.example.weatherforecast.R;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Adapter for displaying weather details in a RecyclerView
+ */
 public class WeatherDetailAdapter extends RecyclerView.Adapter<WeatherDetailAdapter.ViewHolder> {
-
-    public static class WeatherDetail {
-        private final int iconResId;
-        private final String label;
-        private final String value;
-
-        public WeatherDetail(@DrawableRes int iconResId, String label, String value) {
-            this.iconResId = iconResId;
-            this.label = label;
-            this.value = value;
-        }
-
-        public int getIconResId() {
-            return iconResId;
-        }
-
-        public String getLabel() {
-            return label;
-        }
-
-        public String getValue() {
-            return value;
-        }
-    }
 
     private List<WeatherDetail> details;
 
     public WeatherDetailAdapter() {
         this.details = new ArrayList<>();
-    }
-
-    public void updateData(List<WeatherDetail> details) {
-        this.details = details;
-        notifyDataSetChanged();
     }
 
     @NonNull
@@ -63,7 +36,10 @@ public class WeatherDetailAdapter extends RecyclerView.Adapter<WeatherDetailAdap
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         WeatherDetail detail = details.get(position);
-        holder.bind(detail);
+
+        holder.imageView.setImageResource(detail.getIconResId());
+        holder.titleTextView.setText(detail.getTitle());
+        holder.valueTextView.setText(detail.getValue());
     }
 
     @Override
@@ -71,22 +47,56 @@ public class WeatherDetailAdapter extends RecyclerView.Adapter<WeatherDetailAdap
         return details.size();
     }
 
-    static class ViewHolder extends RecyclerView.ViewHolder {
-        private final ImageView ivIcon;
-        private final TextView tvLabel;
-        private final TextView tvValue;
+    /**
+     * Update adapter with new data
+     * @param newDetails List of weather details
+     */
+    public void updateData(List<WeatherDetail> newDetails) {
+        this.details.clear();
+        this.details.addAll(newDetails);
+        notifyDataSetChanged();
+    }
 
-        public ViewHolder(@NonNull View itemView) {
+    /**
+     * ViewHolder for weather detail items
+     */
+    static class ViewHolder extends RecyclerView.ViewHolder {
+        ImageView imageView;
+        TextView titleTextView;
+        TextView valueTextView;
+
+        ViewHolder(View itemView) {
             super(itemView);
-            ivIcon = itemView.findViewById(R.id.iv_icon);
-            tvLabel = itemView.findViewById(R.id.tv_label);
-            tvValue = itemView.findViewById(R.id.tv_value);
+            imageView = itemView.findViewById(R.id.iv_icon);
+            titleTextView = itemView.findViewById(R.id.tv_title);
+            valueTextView = itemView.findViewById(R.id.tv_value);
+        }
+    }
+
+    /**
+     * Data class for weather detail items
+     */
+    public static class WeatherDetail {
+        private final int iconResId;
+        private final String title;
+        private final String value;
+
+        public WeatherDetail(int iconResId, String title, String value) {
+            this.iconResId = iconResId;
+            this.title = title;
+            this.value = value;
         }
 
-        public void bind(WeatherDetail detail) {
-            ivIcon.setImageResource(detail.getIconResId());
-            tvLabel.setText(detail.getLabel());
-            tvValue.setText(detail.getValue());
+        public int getIconResId() {
+            return iconResId;
+        }
+
+        public String getTitle() {
+            return title;
+        }
+
+        public String getValue() {
+            return value;
         }
     }
 }
