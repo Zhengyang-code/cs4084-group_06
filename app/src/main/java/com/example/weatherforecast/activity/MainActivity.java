@@ -114,7 +114,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void getCurrentLocation() {
         showProgress(true);
-        locationUtils.getCurrentLocation(new LocationUtils.LocationCallback() {
+        locationUtils.getCurrentLocation(new LocationUtils.LocationResultListener() {
             @Override
             public void onLocationResult(Location location) {
                 if (location != null) {
@@ -135,9 +135,17 @@ public class MainActivity extends AppCompatActivity {
                                 Toast.LENGTH_LONG).show();
                     }
                 }
+                showProgress(false); // 不要忘了加载结束时隐藏ProgressBar
+            }
+
+            @Override
+            public void onLocationFailure(Exception e) {
+                Toast.makeText(MainActivity.this, "Failed to get location: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                showProgress(false);
             }
         });
     }
+
 
     private void fetchWeatherForLocation(double latitude, double longitude) {
         String apiKey = getString(R.string.weather_api_key);

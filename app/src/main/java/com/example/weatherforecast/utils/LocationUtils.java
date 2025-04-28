@@ -8,6 +8,8 @@ import android.location.Geocoder;
 import android.location.Location;
 import android.os.Looper;
 import android.util.Log;
+import com.google.android.gms.location.Priority;
+
 
 import androidx.annotation.NonNull;
 import androidx.core.app.ActivityCompat;
@@ -18,7 +20,6 @@ import com.google.android.gms.location.LocationCallback;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationResult;
 import com.google.android.gms.location.LocationServices;
-import com.google.android.gms.location.Priority;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 
@@ -27,9 +28,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.TimeUnit;
 
-/**
- * Utility class for location-related operations
- */
 public class LocationUtils {
 
     private static final String TAG = "LocationUtils";
@@ -40,167 +38,67 @@ public class LocationUtils {
     private final FusedLocationProviderClient fusedLocationClient;
     private LocationCallback locationCallback;
 
-    /**
-     * Constructor
-     * @param context Application context
-     */
     public LocationUtils(Context context) {
-        this.context = context;
+        this.context = context.getApplicationContext(); // 避免内存泄漏，使用ApplicationContext
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(context);
     }
 
-    /**
-     * Interface for location result callback
-     */
-    public interface LocationCallback {
+    public interface LocationResultListener {
         void onLocationResult(Location location);
+        void onLocationFailure(Exception e);
     }
 
-    /**
-     * Get the current device location
-     * @param callback Callback to return location result
-     */
-    public void getCurrentLocation(final LocationCallback callback) {
-        if (ActivityCompat.checkSelfPermission(context,
-                Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            callback.onLocationResult(null);
+    public void getCurrentLocation(final LocationResultListener listener) {
+        if (ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
+                ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            listener.onLocationFailure(new SecurityException("Location permission not granted"));
             return;
         }
 
-        // Try to get last known location first (faster)
-        fusedLocationClient.getLastLocation()
-                .addOnSuccessListener(new OnSuccessListener<Location>() {
-                    @Override
-                    public void onSuccess(Location location) {
-                        if (location != null) {
-                            callback.onLocationResult(location);
-                        } else {
-                            // If last location is null, request a fresh location
-                            requestNewLocation(callback);
-                        }
-                    }
-                })
-                .addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        Log.e(TAG, "Error getting last location: " + e.getMessage());
-                        requestNewLocation(callback);
-                    }
-                });
-    }
+        LocationRequest locationRequest = new LocationRequest.Builder(Priority.PRIORITY_HIGH_ACCURACY, LOCATION_UPDATE_INTERVAL)
+                .setMinUpdateIntervalMillis(LOCATION_FASTEST_INTERVAL)
+                .build();
 
-    /**
-     * Request a new location update
-     * @param callback Callback to return location result
-     */
-    private void requestNewLocation(final LocationCallback callback) {
-        if (ActivityCompat.checkSelfPermission(context,
-                Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            callback.onLocationResult(null);
-            return;
-        }
-
-        LocationRequest locationRequest = LocationRequest.create()
-                .setPriority(Priority.PRIORITY_HIGH_ACCURACY)
-                .setInterval(LOCATION_UPDATE_INTERVAL)
-                .setFastestInterval(LOCATION_FASTEST_INTERVAL);
-
-        locationCallback = new com.google.android.gms.location.LocationCallback() {
+        locationCallback = new LocationCallback() {
             @Override
             public void onLocationResult(@NonNull LocationResult locationResult) {
-                fusedLocationClient.removeLocationUpdates(locationCallback);
-                Location location = locationResult.getLastLocation();
-                callback.onLocationResult(location);
+                super.onLocationResult(locationResult);
+                if (locationResult.getLocations().size() > 0) {
+                    Location latestLocation = locationResult.getLastLocation();
+                    listener.onLocationResult(latestLocation);
+                } else {
+                    listener.onLocationFailure(new Exception("No location data available"));
+                }
+                // 获取到一次定位就停止更新，节省资源
+                stopLocationUpdates();
             }
         };
 
-        fusedLocationClient.requestLocationUpdates(locationRequest,
-                locationCallback, Looper.getMainLooper());
-
-        // Set a timeout to stop location updates if we don't get a response in a reasonable time
-        new android.os.Handler(Looper.getMainLooper()).postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                if (locationCallback != null) {
-                    fusedLocationClient.removeLocationUpdates(locationCallback);
-                    callback.onLocationResult(null);
-                }
-            }
-        }, 10000); // 10 seconds timeout
+        fusedLocationClient.requestLocationUpdates(locationRequest, locationCallback, Looper.getMainLooper());
     }
 
-    /**
-     * Get city information from coordinates using Geocoder
-     * @param latitude Latitude coordinate
-     * @param longitude Longitude coordinate
-     * @return City object or null if geocoding fails
-     */
-    public City getCityFromCoordinates(double latitude, double longitude) {
-        Geocoder geocoder = new Geocoder(context, Locale.getDefault());
-        try {
-            List<Address> addresses = geocoder.getFromLocation(latitude, longitude, 1);
-            if (addresses != null && !addresses.isEmpty()) {
-                Address address = addresses.get(0);
-                String cityName = address.getLocality();
-                if (cityName == null || cityName.isEmpty()) {
-                    cityName = address.getSubAdminArea();
-                }
-                if (cityName == null || cityName.isEmpty()) {
-                    cityName = address.getAdminArea();
-                }
-
-                String state = address.getAdminArea();
-                String country = address.getCountryName();
-
-                return new City(cityName, latitude, longitude, country, state);
-            }
-        } catch (IOException e) {
-            Log.e(TAG, "Error getting address from coordinates: " + e.getMessage());
-        }
-
-        return null;
-    }
-
-    /**
-     * Get coordinates from a city name or address using Geocoder
-     * @param addressStr Address or city name string
-     * @return City object or null if geocoding fails
-     */
-    public City getCoordinatesFromAddress(String addressStr) {
-        Geocoder geocoder = new Geocoder(context, Locale.getDefault());
-        try {
-            List<Address> addresses = geocoder.getFromLocationName(addressStr, 1);
-            if (addresses != null && !addresses.isEmpty()) {
-                Address address = addresses.get(0);
-                double latitude = address.getLatitude();
-                double longitude = address.getLongitude();
-
-                String city = address.getLocality();
-                if (city == null || city.isEmpty()) {
-                    city = address.getSubAdminArea();
-                }
-                if (city == null || city.isEmpty()) {
-                    city = address.getAdminArea();
-                }
-
-                String state = address.getAdminArea();
-                String country = address.getCountryName();
-
-                return new City(city, latitude, longitude, country, state);
-            }
-        } catch (IOException e) {
-            Log.e(TAG, "Error getting coordinates from address: " + e.getMessage());
-        }
-
-        return null;
-    }
-
-    /**
-     * Stop location updates
-     */
     public void stopLocationUpdates() {
         if (locationCallback != null) {
             fusedLocationClient.removeLocationUpdates(locationCallback);
-            locationCallback = null;
         }
     }
+
+    public City getCityFromLocation(Location location) {
+        if (location == null) return null;
+        Geocoder geocoder = new Geocoder(context, Locale.getDefault());
+        try {
+            List<Address> addresses = geocoder.getFromLocation(location.getLatitude(), location.getLongitude(), 1);
+            if (addresses != null && !addresses.isEmpty()) {
+                Address address = addresses.get(0);
+                String cityName = address.getLocality();
+                String countryName = address.getCountryName();
+                if (cityName != null && countryName != null) {
+                    return new City(cityName, countryName);
+                }
+            }
+        } catch (IOException e) {
+            Log.e(TAG, "Geocoder failed", e);
+        }
+        return null;
+    }
+}
