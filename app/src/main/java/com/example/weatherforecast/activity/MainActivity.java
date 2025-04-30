@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -90,6 +91,7 @@ public class MainActivity extends AppCompatActivity {
             getSupportActionBar().setDisplayShowTitleEnabled(false);
         }
     }
+
 
     private void initServices() {
         weatherService = APIClient.getClient().create(WeatherService.class);
@@ -197,6 +199,9 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void fetchWeatherForCity(City city) {
+        Log.d("MainActivity", "Fetching weather for city: " + city.getName() + ", lat: " + city.getLatitude() + ", lon: " + city.getLongitude());
+
+        // 使用城市的经纬度
         fetchWeatherForLocation(city.getLatitude(), city.getLongitude());
     }
 
@@ -365,12 +370,28 @@ public class MainActivity extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
+        Log.d("MainActivity", "onActivityResult: requestCode=" + requestCode + ", resultCode=" + resultCode);
+
         if (requestCode == CITY_MANAGE_REQUEST_CODE && resultCode == RESULT_OK) {
             if (data != null && data.hasExtra("selected_city")) {
                 City selectedCity = (City) data.getSerializableExtra("selected_city");
                 if (selectedCity != null) {
+                    Log.d("MainActivity", "Selected city: " + selectedCity.getName());
+
+                    // 保存为当前城市
                     currentCity = selectedCity;
+
+                    // 更新UI以显示正在加载
+                    showProgress(true);
+
+                    // 为选定城市获取天气数据
                     fetchWeatherForCity(currentCity);
+
+                    // 也可以将城市添加到保存列表
+                    if (!isCityInSavedList(currentCity)) {
+                        savedCities.add(currentCity);
+                        SharedPrefsUtils.saveCities(MainActivity.this, savedCities);
+                    }
                 }
             }
         }
