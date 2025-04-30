@@ -202,4 +202,34 @@ public class DateTimeUtils {
         String today = getCurrentDate();
         return today.equals(dateStr);
     }
+
+    /**
+     * Format a full date-time string to a short, user-friendly form.
+     * Input  : 2025-04-30T15:15:00
+     * Output : Apr 30, 3:15 PM
+     *
+     * @param dateTimeStr Date-time string in API format (yyyy-MM-dd'T'HH:mm:ss)
+     * @return Formatted string, or original text if parsing fails
+     */
+    public static String formatDateTime(String dateTimeStr) {
+        try {
+            // 1. 解析 API 字符串
+            SimpleDateFormat inputFormat = new SimpleDateFormat(API_DATETIME_FORMAT, Locale.US);
+            // ⚠️ 如果接口时间是 UTC，请保留下面这行；若已是本地时区，则删除
+            // inputFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
+
+            Date date = inputFormat.parse(dateTimeStr);
+            if (date == null) return dateTimeStr;
+
+            // 2. 组合自己想要的显示格式，这里是 "Apr 30, 3:15 PM"
+            SimpleDateFormat outputFormat =
+                    new SimpleDateFormat(DISPLAY_DATE_FORMAT + ", " + DISPLAY_TIME_FORMAT, Locale.US);
+            return outputFormat.format(date);
+
+        } catch (ParseException e) {
+            e.printStackTrace();
+            return dateTimeStr;
+        }
+    }
+
 }
