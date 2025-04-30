@@ -24,6 +24,13 @@ public class WeatherAlert implements Serializable {
     @SerializedName("id")
     private String id;
 
+    @SerializedName("source")
+    private String source;
+
+    public String getSource() {
+        return source;
+    }
+
     // Visual Crossing specific fields
     @SerializedName("severity")
     private String severity;
