@@ -8,6 +8,7 @@ import android.content.Intent;
 import android.widget.RemoteViews;
 
 import com.example.weatherforecast.R;
+import com.example.weatherforecast.activity.MainActivity;
 import com.example.weatherforecast.models.City;
 import com.example.weatherforecast.models.CurrentWeather;
 import com.example.weatherforecast.network.APIClient;
