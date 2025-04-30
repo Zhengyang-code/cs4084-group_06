@@ -1,6 +1,7 @@
 package com.example.weatherforecast.activity;
 
 import android.os.Bundle;
+import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.EditText;
@@ -112,25 +113,54 @@ public class SearchActivity extends AppCompatActivity {
 
         String apiKey = getString(R.string.weather_api_key);
 
+        // 添加日志以调试请求
+        Log.d("API_DEBUG", "Searching for city: " + query);
+
         Call<SearchResponse> call = weatherService.searchCity(query, apiKey);
         call.enqueue(new Callback<SearchResponse>() {
             @Override
             public void onResponse(@NonNull Call<SearchResponse> call, @NonNull Response<SearchResponse> response) {
                 showProgress(false);
 
+                // 打印完整的请求URL以进行调试
+                Log.d("API_DEBUG", "Request URL: " + call.request().url().toString());
+
                 if (response.isSuccessful() && response.body() != null) {
                     SearchResponse searchResponse = response.body();
-                    if (searchResponse.getResults() != null && !searchResponse.getResults().isEmpty()) {
+
+                    // 打印响应详情
+                    Log.d("API_DEBUG", "Response successful");
+                    Log.d("API_DEBUG", "Resolved Address: " + searchResponse.getResolvedAddress());
+                    Log.d("API_DEBUG", "Latitude: " + searchResponse.getLatitude());
+                    Log.d("API_DEBUG", "Longitude: " + searchResponse.getLongitude());
+
+                    List<City> results = searchResponse.getResults();
+                    if (results != null && !results.isEmpty()) {
                         searchResults.clear();
-                        searchResults.addAll(searchResponse.getResults());
+                        searchResults.addAll(results);
                         adapter.notifyDataSetChanged();
                         showNoResults(false);
+
+                        // 打印找到的城市信息
+                        for (City city : results) {
+                            Log.d("API_DEBUG", "Found city: " + city.getName() + ", Lat: " + city.getLatitude() + ", Lon: " + city.getLongitude());
+                        }
                     } else {
+                        Log.d("API_DEBUG", "No cities found in results");
                         searchResults.clear();
                         adapter.notifyDataSetChanged();
                         showNoResults(true);
                     }
                 } else {
+                    Log.d("API_DEBUG", "Response not successful: " + response.code());
+                    try {
+                        if (response.errorBody() != null) {
+                            Log.d("API_DEBUG", "Error body: " + response.errorBody().string());
+                        }
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+
                     Toast.makeText(SearchActivity.this, "Error searching for city", Toast.LENGTH_SHORT).show();
                     showNoResults(true);
                 }
@@ -139,6 +169,7 @@ public class SearchActivity extends AppCompatActivity {
             @Override
             public void onFailure(@NonNull Call<SearchResponse> call, @NonNull Throwable t) {
                 showProgress(false);
+                Log.e("API_DEBUG", "Network error: " + t.getMessage(), t);
                 Toast.makeText(SearchActivity.this, "Network error: " + t.getMessage(), Toast.LENGTH_SHORT).show();
                 showNoResults(true);
             }

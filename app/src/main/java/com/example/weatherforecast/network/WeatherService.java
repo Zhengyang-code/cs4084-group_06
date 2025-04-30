@@ -5,62 +5,37 @@ import com.example.weatherforecast.models.SearchResponse;
 
 import retrofit2.Call;
 import retrofit2.http.GET;
+import retrofit2.http.Path;
 import retrofit2.http.Query;
 
 public interface WeatherService {
+
     /**
-     * Get current weather and forecast data for a location
-     * Using Visual Crossing Weather API
-     *
-     * @param location Location name or lat,lon coordinates
-     * @param key API key
-     * @param include Sections to include (current,daily,hourly,alerts)
-     * @param unitGroup Unit group (metric or us)
-     * @param lang Language code (en, es, etc.)
-     * @return Call object with CurrentWeather response
+     * 获取当前天气信息
+     * @param location 位置 (经纬度格式: "lat,lon" 或城市名)
+     * @param apiKey API密钥
+     * @param include 包含的数据 (例如: "current,daily,hourly,alerts")
+     * @param unitGroup 单位 (例如: "metric", "us")
+     * @param lang 语言
+     * @return 天气信息
      */
-    @GET("timeline")
+    @GET("timeline/{location}")
     Call<CurrentWeather> getCurrentWeather(
-            @Query("location") String location,
-            @Query("key") String key,
+            @Path("location") String location,
+            @Query("key") String apiKey,
             @Query("include") String include,
             @Query("unitGroup") String unitGroup,
-            @Query("lang") String lang
-    );
+            @Query("lang") String lang);
 
     /**
-     * Get forecast for multiple days
-     *
-     * @param location Location name or lat,lon coordinates
-     * @param startDate Start date (YYYY-MM-DD)
-     * @param endDate End date (YYYY-MM-DD)
-     * @param key API key
-     * @param include Sections to include
-     * @param unitGroup Unit group (metric or us)
-     * @param lang Language code (en, es, etc.)
-     * @return Call object with CurrentWeather response
+     * 搜索城市
+     * @param query 查询字符串
+     * @param apiKey API密钥
+     * @return 搜索结果
      */
-    @GET("timeline")
-    Call<CurrentWeather> getForecast(
-            @Query("location") String location,
-            @Query("startDate") String startDate,
-            @Query("endDate") String endDate,
-            @Query("key") String key,
-            @Query("include") String include,
-            @Query("unitGroup") String unitGroup,
-            @Query("lang") String lang
-    );
-
-    /**
-     * Search for cities by name
-     *
-     * @param query Search query
-     * @param key API key
-     * @return Call object with SearchResponse containing city results
-     */
-    @GET("search")
+    @GET("timeline/{query}")
     Call<SearchResponse> searchCity(
-            @Query("query") String query,
-            @Query("key") String key
-    );
+            @Path("query") String query,
+            @Query("key") String apiKey);
 }
+

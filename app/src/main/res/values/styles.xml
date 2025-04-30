@@ -1,5 +1,0 @@
-<resources>
-    <style name="MyCustomButtonStyle">
-        <item name="android:background">@drawable/rounded_bg</item>
-    </style>
-</resources>
