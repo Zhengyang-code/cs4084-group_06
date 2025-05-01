@@ -63,15 +63,33 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        try{
+            super.onCreate(savedInstanceState);
+            setContentView(R.layout.activity_main);
+            initViews();
+            setupToolbar();
 
-        initViews();
-        setupToolbar();
-        initServices();
+        try {
+            initServices();
+        } catch (Exception e) {
+            Log.e("MainActivity", "Error initializing services", e);
+            Toast.makeText(this, "Error initializing services", Toast.LENGTH_SHORT).show();
+            // 继续执行，不要让应用崩溃
+        }
+
         checkLocationPermission();
-        setupViewPager();
-        setupListeners();
+
+            try {
+                setupViewPager();
+                setupListeners();
+            } catch (Exception e) {
+                Log.e("MainActivity", "Error in setup", e);
+            }
+        } catch (Exception e) {
+            Log.e("MainActivity", "Fatal error in onCreate", e);
+            // 显示错误信息
+            Toast.makeText(this, "Error starting app: " + e.getMessage(), Toast.LENGTH_LONG).show();
+        }
     }
 
     private void initViews() {
@@ -94,23 +112,57 @@ public class MainActivity extends AppCompatActivity {
 
 
     private void initServices() {
-        weatherService = APIClient.getClient().create(WeatherService.class);
-        locationUtils = new LocationUtils(this);
-        savedCities = SharedPrefsUtils.getSavedCities(this);
+        // 确保创建API服务不出错
+        try {
+            weatherService = APIClient.getClient().create(WeatherService.class);
+        } catch (Exception e) {
+            Log.e("MainActivity", "Error creating weather service", e);
+            // 创建失败时提供简单实现
+            weatherService = null;
+        }
 
-        if (savedCities == null) {
+        // 安全地初始化位置服务
+        try {
+            locationUtils = new LocationUtils(this);
+        } catch (Exception e) {
+            Log.e("MainActivity", "Error initializing location utils", e);
+            locationUtils = null;
+        }
+
+        // 安全地获取保存的城市
+        try {
+            savedCities = SharedPrefsUtils.getSavedCities(this);
+            if (savedCities == null) {
+                savedCities = new ArrayList<>();
+            }
+        } catch (Exception e) {
+            Log.e("MainActivity", "Error loading saved cities", e);
             savedCities = new ArrayList<>();
         }
     }
 
+
+
+
     private void checkLocationPermission() {
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
-                != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(this,
-                    new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
-                    LOCATION_PERMISSION_REQUEST_CODE);
-        } else {
-            getCurrentLocation();
+        try {
+            if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
+                    != PackageManager.PERMISSION_GRANTED) {
+                ActivityCompat.requestPermissions(this,
+                        new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
+                        LOCATION_PERMISSION_REQUEST_CODE);
+            } else {
+                if (locationUtils != null) {
+                    getCurrentLocation();
+                } else {
+                    // 位置服务初始化失败，使用默认位置
+                    fetchWeatherForLocation(40.7128, -74.0060); // New York
+                }
+            }
+        } catch (Exception e) {
+            Log.e("MainActivity", "Error checking location permission", e);
+            // 出错时使用默认位置
+            fetchWeatherForLocation(40.7128, -74.0060); // New York
         }
     }
 

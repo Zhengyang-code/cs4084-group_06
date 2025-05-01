@@ -2,6 +2,7 @@ package com.example.weatherforecast.utils;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.util.Log;
 
 import com.example.weatherforecast.models.City;
 import com.google.gson.Gson;
@@ -9,6 +10,7 @@ import com.google.gson.reflect.TypeToken;
 
 import java.lang.reflect.Type;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 /**
@@ -41,11 +43,15 @@ public class SharedPrefsUtils {
      * @param cities List of City objects
      */
     public static void saveCities(Context context, List<City> cities) {
-        SharedPreferences.Editor editor = getPrefs(context).edit();
-        Gson gson = new Gson();
-        String json = gson.toJson(cities);
-        editor.putString(KEY_SAVED_CITIES, json);
-        editor.apply();
+        try {
+            if (cities == null) {
+                cities = new ArrayList<>();
+            }
+            String citiesJson = new Gson().toJson(cities);
+            getPrefs(context).edit().putString("saved_cities", citiesJson).apply();
+        } catch (Exception e) {
+            Log.e("SharedPrefsUtils", "Error saving cities", e);
+        }
     }
 
     /**
@@ -54,18 +60,27 @@ public class SharedPrefsUtils {
      * @return List of City objects or empty list
      */
     public static List<City> getSavedCities(Context context) {
-        SharedPreferences prefs = getPrefs(context);
-        String json = prefs.getString(KEY_SAVED_CITIES, null);
-
-        if (json == null) {
-            return new ArrayList<>();
+        try {
+            String citiesJson = getPrefs(context).getString("saved_cities", null);
+            if (citiesJson != null) {
+                Type type = new TypeToken<List<City>>(){}.getType();
+                List<City> cities = new Gson().fromJson(citiesJson, type);
+                // 过滤掉任何可能导致问题的无效城市
+                if (cities != null) {
+                    Iterator<City> iterator = cities.iterator();
+                    while (iterator.hasNext()) {
+                        City city = iterator.next();
+                        if (city == null || city.getName() == null || city.getName().isEmpty()) {
+                            iterator.remove();
+                        }
+                    }
+                    return cities;
+                }
+            }
+        } catch (Exception e) {
+            Log.e("SharedPrefsUtils", "Error loading saved cities", e);
         }
-
-        Gson gson = new Gson();
-        Type type = new TypeToken<List<City>>() {}.getType();
-        List<City> cities = gson.fromJson(json, type);
-
-        return cities != null ? cities : new ArrayList<>();
+        return new ArrayList<>(); // 返回空列表而不是null
     }
 
     /**
@@ -154,11 +169,14 @@ public class SharedPrefsUtils {
      * @param city City object
      */
     public static void saveLastLocation(Context context, City city) {
-        SharedPreferences.Editor editor = getPrefs(context).edit();
-        Gson gson = new Gson();
-        String json = gson.toJson(city);
-        editor.putString(KEY_LAST_LOCATION, json);
-        editor.apply();
+        try {
+            if (city != null && city.getName() != null && !city.getName().isEmpty()) {
+                String cityJson = new Gson().toJson(city);
+                getPrefs(context).edit().putString("last_location", cityJson).apply();
+            }
+        } catch (Exception e) {
+            Log.e("SharedPrefsUtils", "Error saving last location", e);
+        }
     }
 
     /**
@@ -167,15 +185,19 @@ public class SharedPrefsUtils {
      * @return City object or null
      */
     public static City getLastLocation(Context context) {
-        SharedPreferences prefs = getPrefs(context);
-        String json = prefs.getString(KEY_LAST_LOCATION, null);
-
-        if (json == null) {
-            return null;
+        try {
+            String cityJson = getPrefs(context).getString("last_location", null);
+            if (cityJson != null) {
+                City city = new Gson().fromJson(cityJson, City.class);
+                // 验证城市对象的有效性
+                if (city != null && city.getName() != null && !city.getName().isEmpty()) {
+                    return city;
+                }
+            }
+        } catch (Exception e) {
+            Log.e("SharedPrefsUtils", "Error loading last location", e);
         }
-
-        Gson gson = new Gson();
-        return gson.fromJson(json, City.class);
+        return null;
     }
 
     /**
