@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # cs4084-group_06
 # Weather Forecast App
 
@@ -46,3 +47,7 @@ An Android weather forecast application that provides real-time weather informat
 ## License
 
 All rights reserved
+=======
+# Weatherapp
+Weather Application 
+>>>>>>> 6e36331a6b845699ce1f85d6536f844a09ef960d
