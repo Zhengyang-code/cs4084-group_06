@@ -2,6 +2,7 @@ package com.example.weatherforecast.fragments;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -25,7 +26,10 @@ import com.example.weatherforecast.utils.IconUtils;
 
 import java.util.ArrayList;
 import java.util.List;
-
+import java.lang.reflect.Field;
+import com.google.gson.Gson;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 /**
  * Fragment to display current weather conditions
  */
@@ -127,81 +131,168 @@ public class CurrentWeatherFragment extends Fragment {
     public void updateWeatherData(CurrentWeather weatherData) {
         this.weatherData = weatherData;
 
-        if (weatherData == null || weatherData.getCurrent() == null) {
+        // 检查weatherData是否为null
+        if (weatherData == null) {
             showNoData(true);
             return;
         }
 
-        showNoData(false);
+        try {
+            // 将CurrentWeather对象转换为JSON字符串
+            String jsonString = new Gson().toJson(weatherData);
 
-        // Update main weather display
-        tvTemperature.setText(String.format("%.0f°", weatherData.getCurrent().getTemperature()));
-        tvCondition.setText(weatherData.getCurrent().getConditions());
+            // 将JSON字符串解析为JsonObject
+            JsonObject jsonObject = JsonParser.parseString(jsonString).getAsJsonObject();
 
-        // Set icon based on weather condition
-        int iconResId = IconUtils.getWeatherIconResource(weatherData.getCurrent().getIcon());
-        ivWeatherIcon.setImageResource(iconResId);
+            // 检查是否有days数组
+            if (!jsonObject.has("days") || jsonObject.getAsJsonArray("days").size() == 0) {
+                showNoData(true);
+                return;
+            }
 
-        // Show high/low temperatures
-        if (weatherData.getDailyForecasts() != null && !weatherData.getDailyForecasts().isEmpty()) {
-            double highTemp = weatherData.getDailyForecasts().get(0).getTempMax();
-            double lowTemp = weatherData.getDailyForecasts().get(0).getTempMin();
-            tvHighLow.setText(String.format("H: %.0f° L: %.0f°", highTemp, lowTemp));
-        }
+            showNoData(false);
 
-        // Update details
-        tvFeelsLike.setText(String.format("%.0f°", weatherData.getCurrent().getFeelsLike()));
-        tvHumidity.setText(String.format("%.0f%%", weatherData.getCurrent().getHumidity()));
-        tvWindSpeed.setText(String.format("%.1f km/h", weatherData.getCurrent().getWindSpeed()));
-        tvPressure.setText(String.format("%.0f hPa", weatherData.getCurrent().getPressure()));
-        tvVisibility.setText(String.format("%.1f km", weatherData.getCurrent().getVisibility()));
+            // 获取第一天的数据
+            JsonObject currentDay = jsonObject.getAsJsonArray("days").get(0).getAsJsonObject();
 
-        // Update sunrise and sunset times
-        tvSunrise.setText(DateTimeUtils.formatTime(weatherData.getCurrent().getSunrise()));
-        tvSunset.setText(DateTimeUtils.formatTime(weatherData.getCurrent().getSunset()));
+            // 更新UI - 温度
+            if (currentDay.has("temp")) {
+                double temp = currentDay.get("temp").getAsDouble();
+                tvTemperature.setText(String.format("%.0f°", temp));
+            }
 
-        // Update last updated time
-        tvLastUpdated.setText(String.format("Updated %s",
-                DateTimeUtils.getRelativeTimeSpanString(weatherData.getCurrent().getDateTime())));
+            // 天气状况
+            if (currentDay.has("conditions")) {
+                String conditions = currentDay.get("conditions").getAsString();
+                tvCondition.setText(conditions);
+            }
 
-        // Update weather details list
-        List<WeatherDetailAdapter.WeatherDetail> details = new ArrayList<>();
-        details.add(new WeatherDetailAdapter.WeatherDetail(
-                R.drawable.ic_humidity, "Humidity",
-                String.format("%.0f%%", weatherData.getCurrent().getHumidity())));
+            // 天气图标
+            if (currentDay.has("icon")) {
+                String icon = currentDay.get("icon").getAsString();
+                int iconResId = IconUtils.getWeatherIconResource(icon);
+                ivWeatherIcon.setImageResource(iconResId);
+            }
 
-        details.add(new WeatherDetailAdapter.WeatherDetail(
-                R.drawable.ic_wind, "Wind",
-                String.format("%.1f km/h", weatherData.getCurrent().getWindSpeed())));
+            // 高低温
+            double tempMax = currentDay.has("tempmax") ? currentDay.get("tempmax").getAsDouble() : 0;
+            double tempMin = currentDay.has("tempmin") ? currentDay.get("tempmin").getAsDouble() : 0;
+            tvHighLow.setText(String.format("H: %.0f° L: %.0f°", tempMax, tempMin));
 
-        details.add(new WeatherDetailAdapter.WeatherDetail(
-                R.drawable.ic_pressure, "Pressure",
-                String.format("%.0f hPa", weatherData.getCurrent().getPressure())));
+            // 体感温度
+            if (currentDay.has("feelslike")) {
+                double feelslike = currentDay.get("feelslike").getAsDouble();
+                tvFeelsLike.setText(String.format("%.0f°", feelslike));
+            }
 
-        details.add(new WeatherDetailAdapter.WeatherDetail(
-                R.drawable.ic_visibility, "Visibility",
-                String.format("%.1f km", weatherData.getCurrent().getVisibility())));
+            // 湿度
+            if (currentDay.has("humidity")) {
+                double humidity = currentDay.get("humidity").getAsDouble();
+                tvHumidity.setText(String.format("%.0f%%", humidity));
+            }
 
-        details.add(new WeatherDetailAdapter.WeatherDetail(
-                R.drawable.ic_dew_point, "Dew Point",
-                String.format("%.0f°", weatherData.getCurrent().getDewPoint())));
+            // 风速
+            if (currentDay.has("windspeed")) {
+                double windspeed = currentDay.get("windspeed").getAsDouble();
+                tvWindSpeed.setText(String.format("%.1f km/h", windspeed));
+            }
 
-        details.add(new WeatherDetailAdapter.WeatherDetail(
-                R.drawable.ic_uv_index, "UV Index",
-                String.format("%.0f", weatherData.getCurrent().getUvIndex())));
+            // 气压
+            if (currentDay.has("pressure")) {
+                double pressure = currentDay.get("pressure").getAsDouble();
+                tvPressure.setText(String.format("%.0f hPa", pressure));
+            }
 
-        detailAdapter.updateData(details);
+            // 能见度
+            if (currentDay.has("visibility")) {
+                double visibility = currentDay.get("visibility").getAsDouble();
+                tvVisibility.setText(String.format("%.1f km", visibility));
+            }
 
-        // Show or hide weather alerts
-        if (weatherData.hasAlerts()) {
-            WeatherAlert alert = weatherData.getAlerts().get(0);
-            tvAlertTitle.setText(alert.getEvent());
+            // 日出时间
+            if (currentDay.has("sunrise")) {
+                String sunrise = currentDay.get("sunrise").getAsString();
+                tvSunrise.setText(DateTimeUtils.formatTime(sunrise));
+            }
 
-            // Set the alert icon color based on severity
-            ivAlertIcon.setColorFilter(alert.getAlertColor());
-            alertView.setVisibility(View.VISIBLE);
-        } else {
+            // 日落时间
+            if (currentDay.has("sunset")) {
+                String sunset = currentDay.get("sunset").getAsString();
+                tvSunset.setText(DateTimeUtils.formatTime(sunset));
+            }
+
+            // 更新时间
+            if (currentDay.has("datetimeEpoch")) {
+                long datetimeEpoch = currentDay.get("datetimeEpoch").getAsLong();
+                // 确保时间单位正确（毫秒）
+                tvLastUpdated.setText("Updated " + android.text.format.DateUtils.getRelativeTimeSpanString(
+                        datetimeEpoch * 1000, // 如果datetimeEpoch是秒，转换为毫秒
+                        System.currentTimeMillis(),
+                        android.text.format.DateUtils.MINUTE_IN_MILLIS
+                ));
+            }
+
+
+
+            // 更新天气详情列表
+            List<WeatherDetailAdapter.WeatherDetail> details = new ArrayList<>();
+
+            // 湿度
+            if (currentDay.has("humidity")) {
+                double humidity = currentDay.get("humidity").getAsDouble();
+                details.add(new WeatherDetailAdapter.WeatherDetail(
+                        R.drawable.ic_humidity, "Humidity",
+                        String.format("%.0f%%", humidity)));
+            }
+
+            // 风速
+            if (currentDay.has("windspeed")) {
+                double windspeed = currentDay.get("windspeed").getAsDouble();
+                details.add(new WeatherDetailAdapter.WeatherDetail(
+                        R.drawable.ic_wind, "Wind",
+                        String.format("%.1f km/h", windspeed)));
+            }
+
+            // 气压
+            if (currentDay.has("pressure")) {
+                double pressure = currentDay.get("pressure").getAsDouble();
+                details.add(new WeatherDetailAdapter.WeatherDetail(
+                        R.drawable.ic_pressure, "Pressure",
+                        String.format("%.0f hPa", pressure)));
+            }
+
+            // 能见度
+            if (currentDay.has("visibility")) {
+                double visibility = currentDay.get("visibility").getAsDouble();
+                details.add(new WeatherDetailAdapter.WeatherDetail(
+                        R.drawable.ic_visibility, "Visibility",
+                        String.format("%.1f km", visibility)));
+            }
+
+            // 露点
+            if (currentDay.has("dew")) {
+                double dew = currentDay.get("dew").getAsDouble();
+                details.add(new WeatherDetailAdapter.WeatherDetail(
+                        R.drawable.ic_dew_point, "Dew Point",
+                        String.format("%.0f°", dew)));
+            }
+
+            // 紫外线指数
+            if (currentDay.has("uvindex")) {
+                double uvindex = currentDay.get("uvindex").getAsDouble();
+                details.add(new WeatherDetailAdapter.WeatherDetail(
+                        R.drawable.ic_uv_index, "UV Index",
+                        String.format("%.0f", uvindex)));
+            }
+
+            detailAdapter.updateData(details);
+
+            // 隐藏警报视图
             alertView.setVisibility(View.GONE);
+
+        } catch (Exception e) {
+            Log.e("CurrentWeatherFragment", "Error updating weather data", e);
+            showNoData(true);
         }
     }
 
