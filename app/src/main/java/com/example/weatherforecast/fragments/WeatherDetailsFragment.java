@@ -17,9 +17,11 @@ import com.example.weatherforecast.adapters.WeatherDetailAdapter;
 import com.example.weatherforecast.models.AirQuality;
 import com.example.weatherforecast.models.CurrentWeather;
 import com.example.weatherforecast.models.CurrentWeather.CurrentConditions;
+import com.example.weatherforecast.models.DailyForecast;
 
 import java.util.ArrayList;
 import java.util.List;
+
 
 public class WeatherDetailsFragment extends Fragment {
 
@@ -69,12 +71,15 @@ public class WeatherDetailsFragment extends Fragment {
      * @param weatherData The current weather data
      */
     public void updateWeatherData(CurrentWeather weatherData) {
-        if (weatherData == null || weatherData.getCurrent() == null) {
+        if (weatherData == null || weatherData.getDailyForecasts() == null || weatherData.getDailyForecasts().isEmpty()) {
             showNoData(true);
             return;
         }
 
-        // Show AQI if available
+        // 从第一天获取详细信息
+        DailyForecast currentDay = weatherData.getDailyForecasts().get(0);
+
+        // Show AQI if available (这部分可以保持不变，因为AirQuality依然来自weatherData对象)
         AirQuality airQuality = weatherData.getAirQuality();
         if (airQuality != null) {
             tvAqiValue.setText(String.valueOf(airQuality.getAqiIndex()));
@@ -89,76 +94,77 @@ public class WeatherDetailsFragment extends Fragment {
             aqiContainer.setVisibility(View.GONE);
         }
 
-        // Populate detailed weather information
-        List<WeatherDetailAdapter.WeatherDetail> details = createDetailsList(weatherData);
+        // Populate detailed weather information using currentDay instead of current
+        List<WeatherDetailAdapter.WeatherDetail> details = createDetailsList(currentDay);
         adapter.updateData(details);
 
         showNoData(false);
     }
 
-    private List<WeatherDetailAdapter.WeatherDetail> createDetailsList(CurrentWeather weatherData) {
+
+    // 调整createDetailsList方法接收DailyForecast而非CurrentConditions
+    private List<WeatherDetailAdapter.WeatherDetail> createDetailsList(DailyForecast currentDay) {
         List<WeatherDetailAdapter.WeatherDetail> details = new ArrayList<>();
-        CurrentConditions current = weatherData.getCurrent();
 
         // Humidity
         details.add(new WeatherDetailAdapter.WeatherDetail(
                 R.drawable.ic_humidity,
                 "Humidity",
-                String.format("%.0f%%", current.getHumidity())));
+                String.format("%.0f%%", currentDay.getHumidity())));
 
         // Dew Point
         details.add(new WeatherDetailAdapter.WeatherDetail(
                 R.drawable.ic_dew_point,
                 "Dew Point",
-                String.format("%.1f°", current.getDewPoint())));
+                String.format("%.1f°", currentDay.getDewPoint())));
 
         // Pressure
         details.add(new WeatherDetailAdapter.WeatherDetail(
                 R.drawable.ic_pressure,
                 "Pressure",
-                String.format("%.0f hPa", current.getPressure())));
+                String.format("%.0f hPa", currentDay.getPressure())));
 
-        // Wind
+        // Wind Speed
         details.add(new WeatherDetailAdapter.WeatherDetail(
                 R.drawable.ic_wind,
                 "Wind Speed",
-                String.format("%.1f km/h", current.getWindSpeed())));
+                String.format("%.1f km/h", currentDay.getWindSpeed())));
 
         // Wind Direction
         details.add(new WeatherDetailAdapter.WeatherDetail(
                 R.drawable.ic_wind,
                 "Wind Direction",
-                String.format("%.0f°", current.getWindDirection())));
+                String.format("%.0f°", currentDay.getWindDirection())));
 
         // UV Index
         details.add(new WeatherDetailAdapter.WeatherDetail(
                 R.drawable.ic_uv_index,
                 "UV Index",
-                String.format("%.0f", current.getUvIndex())));
+                String.format("%.0f", currentDay.getUvIndex())));
 
         // Visibility
         details.add(new WeatherDetailAdapter.WeatherDetail(
                 R.drawable.ic_visibility,
                 "Visibility",
-                String.format("%.1f km", current.getVisibility())));
+                String.format("%.1f km", currentDay.getVisibility())));
 
         // Cloud Cover
         details.add(new WeatherDetailAdapter.WeatherDetail(
                 R.drawable.ic_cloud,
                 "Cloud Cover",
-                String.format("%.0f%%", current.getCloudCover())));
+                String.format("%.0f%%", currentDay.getCloudCover())));
 
         // Precipitation
         details.add(new WeatherDetailAdapter.WeatherDetail(
                 R.drawable.ic_precipitation,
                 "Precipitation",
-                String.format("%.1f mm", current.getPrecipitation())));
+                String.format("%.1f mm", currentDay.getPrecipitation())));
 
         // Precipitation Chance
         details.add(new WeatherDetailAdapter.WeatherDetail(
                 R.drawable.ic_precipitation,
                 "Precipitation Chance",
-                String.format("%.0f%%", current.getPrecipitationProbability())));
+                String.format("%.0f%%", currentDay.getPrecipitationProbability())));
 
         return details;
     }

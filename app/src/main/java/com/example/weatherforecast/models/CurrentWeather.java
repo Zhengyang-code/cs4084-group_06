@@ -22,9 +22,6 @@ public class CurrentWeather implements Serializable {
     @SerializedName("tzoffset")
     private double timezoneOffset;
 
-    @SerializedName("currentConditions")
-    private CurrentConditions current;
-
     @SerializedName("days")
     private List<DailyForecast> dailyForecasts;
 
@@ -35,9 +32,36 @@ public class CurrentWeather implements Serializable {
     @SerializedName("description")
     private String description;
 
+    private CurrentConditions current;
     @SerializedName("resolvedAddress")
     private String resolvedAddress;
 
+    public CurrentConditions getCurrent() {
+        if (current == null && dailyForecasts != null && !dailyForecasts.isEmpty()) {
+            // 从第一天数据创建CurrentConditions对象
+            DailyForecast today = dailyForecasts.get(0);
+            current = new CurrentConditions();
+            current.setDateTime(today.getDate());
+            current.setTemperature(today.getTemperature());
+            current.setFeelsLike(today.getFeelsLike());
+            current.setHumidity(today.getHumidity());
+            current.setDewPoint(today.getDewPoint());
+            current.setPrecipitation(today.getPrecipitation());
+            current.setPrecipitationProbability(today.getPrecipitationProbability());
+            current.setWindSpeed(today.getWindSpeed());
+            current.setWindDirection(today.getWindDirection());
+            current.setPressure(today.getPressure());
+            current.setVisibility(today.getVisibility());
+            current.setCloudCover(today.getCloudCover());
+            current.setUvIndex(today.getUvIndex());
+            current.setConditions(today.getConditions());
+            current.setIcon(today.getIcon());
+            current.setSunrise(today.getSunrise());
+            current.setSunset(today.getSunset());
+            current.setMoonPhase(today.getMoonPhase());
+        }
+        return current;
+    }
     public static class CurrentConditions implements Serializable {
         @SerializedName("datetime")
         private String dateTime;
@@ -324,9 +348,6 @@ public class CurrentWeather implements Serializable {
         this.timezoneOffset = timezoneOffset;
     }
 
-    public CurrentConditions getCurrent() {
-        return current;
-    }
 
     public void setCurrent(CurrentConditions current) {
         this.current = current;
