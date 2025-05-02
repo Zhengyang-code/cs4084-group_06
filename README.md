@@ -1,93 +1,99 @@
- Weather Forecast App ("彩云天气" – Chinese API)
-An Android weather forecast application developed using the Caiyun Weather ("彩云天气") API.
-The app offers real-time localized weather conditions and travel guidance in Simplified Chinese,
-as the app integrates a Chinese-only API.
+# 彩云天气 (Caiyun Weather) Forecast App
 
-All weather data and suggestions are in Simplified Chinese, as required by the selected API.
+An Android weather forecast application leveraging the Caiyun Weather (彩云天气) API to deliver real-time localized weather information and lifestyle recommendations in Simplified Chinese.Due to API limitations, all text is displayed in Mandarin. We appreciate your understanding.
 
-Key Features
-This app supports the following 12 features:
+![img_2.png](img_2.png)
+![App Screenshot 2](https://github.com/user-attachments/assets/4cb0a387-a21c-4933-94b3-d73ddf846dab)
+![App Screenshot 3](https://github.com/user-attachments/assets/bd2b8d3b-f25b-4347-84e0-7ab6fe2c6581)
 
-UI automatically darkens at night to reflect realistic day-night weather.
+## 🌟 Key Features
 
-Current Weather Display 
-Shows temperature, weather condition, wind, humidity.
+### Weather Information
+- **Current Weather Display**: Date, Temperature, weather condition
+- **3-Day Weather Overview**: Yesterday, Today, and Day-After-Tomorrow forecasts
+- **Dynamic Weather Icons**: Visual representations based on Caiyun's skycon values (CLEAR_DAY, RAIN, CLOUDY, etc.)
+- **Air Quality Index**: Displays real-time AQI data with health recommendations
+- **Weather Alerts**: Notifies users of severe weather conditions in their saved locations
 
-3-Day Overview: Yesterday, Today, Day-After-Tomorrow
+### User Experience
+- **Intelligent UI**: Automatically switches to dark theme during evening/night hours
+- **City Management**:
+  - Search by city name (supports both Chinese "上海" and English "Shanghai")
+  - Save multiple cities for quick access
+  - Easily switch between saved locations
+- **Offline Capability**: Access the most recent weather data when no internet connection is available
+- **Real-Time Weather Refresh**
+    How to Use: Pull down on the main screen to trigger a refresh.
+    Visual Feedback: A refresh progress bar appears at the top of the screen to indicate the current refresh status.
+    Effect: Once the refresh is complete, the weather information on the screen updates with the latest data, ensuring real-time accuracy.
+- **City Switching Function**
+    Entry Methods:
+    Tap the "Home" icon in the title bar on the main interface.
+    Or swipe from the left edge of the screen to open the city selection menu.
+    Instructions:
+    Use the search bar in the sliding menu to find a desired city.
+    Tap the target city from the list to switch.
+    Interface Response:
+    The sliding menu will automatically close after selecting a new city.
+    The main screen will update to display the weather information of the selected city.
+- **Weather Widgets**: Add customizable home screen widgets showing current conditions for favorite cities
 
-Search by City Name 
-Supports both Chinese (e.g., “上海”) and English (e.g., “Shanghai”) inputs.
+### Lifestyle Recommendations
+- **Daily Suggestions** including:
+  - 🌞 UV Index advisory
+  - 🧣 Temperature comfort indicators
+  - 👕 Clothing recommendations
+  - 🚶 Outdoor activity suitability
+- **Weather-Based Reminders**: Set customized notifications for specific weather conditions 
+- **Historical Weather Data**: View weather patterns for saved locations over the past week to identify trends
 
-Multi-City Management
-Users can store, view, and switch between saved cities.
 
-Dynamic Weather Icons
-Icons are displayed based on Caiyun's skycon values, such as CLEAR_DAY, RAIN, CLOUDY.
+### Technical Highlights
+- **Full Chinese Localization**: All weather data, city names, and UI elements display in Simplified Chinese
+- **Robust Error Handling**: Intuitive loading indicators and user-friendly error messages
+- **MVVM Architecture**: Clean separation between API, database, and UI components
 
-Auto Night Mode UI
-Automatically switches to darker theme in the evening or night time.
+## 🛠️ Technology Stack
 
-Offline Mode (Room Database)
-Stores the latest weather data for each city in local database for offline viewing.
+- **Language**: Kotlin
+- **Architecture**: MVVM (Model-View-ViewModel)
+- **API Integration**: Retrofit2 + Gson
+- **Local Storage**: Room Database
+- **UI Components**: RecyclerView, SwipeRefreshLayout
+- **Visual Elements**: Day/Night responsive weather icons and dynamic backgrounds
+- **Background Services**: WorkManager for scheduling weather updates
+- **Notifications**: NotificationCompat for weather alerts and reminders
 
-Pull-to-Refresh
-Manual refresh using swipe-down gesture to update weather data.
+## 🚀 Getting Started
 
-Full Chinese Localization
-Weather, city names, and all UI labels are in Simplified Chinese (as returned by the API).
-
-Error Handling and Loading Feedback
-Progress indicators during fetch, and user-friendly error prompts on failure.
-
-Travel and Lifestyle Suggestions 
-Displays daily suggestions such as:
-
-🌞 UV Index 
-
-🧣 Cold/Warm Indicator 
-
-👕 Clothing Advice 
-
-🚶 Outdoor Suitability 
-
-Modular Architecture
-Uses MVVM design with clean separation between API, database, and UI layers.
-
-Powered by Caiyun Weather API
-Chinese-only response
-
-Provides: current conditions, yesterday/today/future day data, travel suggestions
-
-Example API:
-
-https://api.caiyunapp.com/v2.6/YOUR_API_KEY/LONGITUDE,LATITUDE/weather?alert=true&dailysteps=3
-❗ The free tier of the API does not support GPS auto-detection or hourly/weekly forecasts.
-
-🛠 Tech Stack
-Language: Java
-
-Architecture: MVVM
-
-API Access: Retrofit2 + Gson
-
-Database: Room
-
-UI Components: RecyclerView, SwipeRefreshLayout
-
-Icons & Theme: Day/Night responsive weather icons and dynamic backgrounds
-
-🚀 Getting Started
-1. Clone the Project
+### 1. Clone the Repository
+```bash
 git clone https://github.com/Zhengyang-code/cs4084-group_06.git
 cd cs4084-group_06
-2. Open in Android Studio
-Use Android Studio Arctic Fox or newer.
+```
 
-3. Add API Key
-Register at https://dashboard.caiyunapp.com/ and add this to res/values/strings.xml:
+### 2. Setup Environment
+- Open the project in Android Studio (Arctic Fox or newer)
 
+### 3. Configure API Key
+- Register for a free API key at [Caiyun Weather Dashboard](https://dashboard.caiyunapp.com/)
+- Add your key to `res/values/strings.xml`:
+```xml
 <string name="caiyun_api_key">YOUR_API_KEY</string>
-📂 Project Structure
+```
+
+### 4. API Limitations
+The free tier of Caiyun Weather API:
+- Does not support GPS auto-detection
+- Does not provide hourly or weekly forecasts
+- Example API endpoint:
+  ```
+  https://api.caiyunapp.com/v2.6/YOUR_API_KEY/LONGITUDE,LATITUDE/weather?alert=true&dailysteps=3
+  ```
+
+## 📂 Project Structure
+
+```
 app/
 ├── activities/
 │   └── MainActivity.java
@@ -107,25 +113,17 @@ app/
     ├── layout/
     ├── drawable/
     └── values/
-📸 Screenshots
-<img width="266" alt="62be5fa60eec548a2652629cd30537d" src="https://github.com/user-attachments/assets/76c5151a-858f-429b-8fd0-fc4edabdc146" />
-<img width="272" alt="c508d26f20a58ac695e16b0747cd7e1" src="https://github.com/user-attachments/assets/4cb0a387-a21c-4933-94b3-d73ddf846dab" />
-<img width="261" alt="4290cfb75b7c1f35b6a7dc8d43442e9" src="https://github.com/user-attachments/assets/bd2b8d3b-f25b-4347-84e0-7ab6fe2c6581" />
+```
 
+## 📄 License
+This project is developed for academic purposes and is licensed under the MIT License.
+See the LICENSE file for complete terms.
 
+## 👨‍💻 Contributors
+- Zhengyang Li
+- Cunxin Yu
+- Song Wang
+- Yilong Dong
 
-📄 License
-This project is for academic use only and licensed under MIT.
-See LICENSE file for full terms.
-
-👨‍💻 Contributors
-Zhengyang Li
-Cunxin Yu
-Song Wang
-Yilong Dong
-
-CS4084 Group 06
-
+CS4084 Group 06  
 University of Limerick, 2025
-
-
