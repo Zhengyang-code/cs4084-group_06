@@ -39,7 +39,7 @@ An Android weather forecast application leveraging the Caiyun Weather (彩云天
 
 ## 🛠️ Technology Stack
 
-- **Language**: Java
+- **Language**: Kotlin
 - **Architecture**: MVVM (Model-View-ViewModel)
 - **API Integration**: Retrofit2 + Gson
 - **Local Storage**: Room Database
