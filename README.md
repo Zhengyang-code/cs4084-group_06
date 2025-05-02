@@ -9,7 +9,7 @@ An Android weather forecast application leveraging the Caiyun Weather (彩云天
 ## 🌟 Key Features
 
 ### Weather Information
-- **Current Weather Display**: Temperature, weather condition
+- **Current Weather Display**: Date, Temperature, weather condition
 - **3-Day Weather Overview**: Yesterday, Today, and Day-After-Tomorrow forecasts
 - **Dynamic Weather Icons**: Visual representations based on Caiyun's skycon values (CLEAR_DAY, RAIN, CLOUDY, etc.)
 - **Air Quality Index**: Displays real-time AQI data with health recommendations
