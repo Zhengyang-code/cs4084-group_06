@@ -1,53 +1,129 @@
-<<<<<<< HEAD
-# cs4084-group_06
-# Weather Forecast App
+# 彩云天气 (Caiyun Weather) Forecast App
 
-An Android weather forecast application that provides real-time weather information and forecasts using Visual Crossing Weather API.
+An Android weather forecast application leveraging the Caiyun Weather (彩云天气) API to deliver real-time localized weather information and lifestyle recommendations in Simplified Chinese.Due to API limitations, all text is displayed in Mandarin. We appreciate your understanding.
 
-## Features
+![img_2.png](img_2.png)
+![App Screenshot 2](https://github.com/user-attachments/assets/4cb0a387-a21c-4933-94b3-d73ddf846dab)
+![App Screenshot 3](https://github.com/user-attachments/assets/bd2b8d3b-f25b-4347-84e0-7ab6fe2c6581)
 
-1. Current location weather display
-2. Multi-city weather management
-3. 7-day weather forecast
-4. 24-hour weather forecast
-5. Weather alerts and notifications
-6. Air quality index display
-7. Real-time weather updates
-8. City search functionality
-9. Detailed weather data (humidity, pressure, visibility, etc.)
-10. Home screen widget
-11. Offline caching
-12. Weather sharing
-13. Dark mode/day-night theme
-14. Custom refresh rate settings
-15. Weather map visualization
+## 🌟 Key Features
 
-## Technologies Used
+### Weather Information
+- **Current Weather Display**: Date, Temperature, weather condition
+- **3-Day Weather Overview**: Yesterday, Today, and Day-After-Tomorrow forecasts
+- **Dynamic Weather Icons**: Visual representations based on Caiyun's skycon values (CLEAR_DAY, RAIN, CLOUDY, etc.)
+- **Air Quality Index**: Displays real-time AQI data with health recommendations
+- **Weather Alerts**: Notifies users of severe weather conditions in their saved locations
 
-- Java
-- Retrofit for API requests
-- Room for local database
-- Google Play Services Location
-- RecyclerView and CardView for UI components
-- GSON for JSON parsing
+### User Experience
+- **Intelligent UI**: Automatically switches to dark theme during evening/night hours
+- **City Management**:
+  - Search by city name (supports both Chinese "上海" and English "Shanghai")
+  - Save multiple cities for quick access
+  - Easily switch between saved locations
+- **Offline Capability**: Access the most recent weather data when no internet connection is available
+- **Real-Time Weather Refresh**
+    How to Use: Pull down on the main screen to trigger a refresh.
+    Visual Feedback: A refresh progress bar appears at the top of the screen to indicate the current refresh status.
+    Effect: Once the refresh is complete, the weather information on the screen updates with the latest data, ensuring real-time accuracy.
+- **City Switching Function**
+    Entry Methods:
+    Tap the "Home" icon in the title bar on the main interface.
+    Or swipe from the left edge of the screen to open the city selection menu.
+    Instructions:
+    Use the search bar in the sliding menu to find a desired city.
+    Tap the target city from the list to switch.
+    Interface Response:
+    The sliding menu will automatically close after selecting a new city.
+    The main screen will update to display the weather information of the selected city.
+- **Weather Widgets**: Add customizable home screen widgets showing current conditions for favorite cities
 
-## Setup
+### Lifestyle Recommendations
+- **Daily Suggestions** including:
+  - 🌞 UV Index advisory
+  - 🧣 Temperature comfort indicators
+  - 👕 Clothing recommendations
+  - 🚶 Outdoor activity suitability
+- **Weather-Based Reminders**: Set customized notifications for specific weather conditions 
+- **Historical Weather Data**: View weather patterns for saved locations over the past week to identify trends
 
-1. Clone the repository
-2. Get an API key from [Visual Crossing Weather API](https://www.visualcrossing.com/weather-api)
-3. Add your API key to `secrets.xml` in the values folder
-4. Build and run the application
 
-## Requirements
+### Technical Highlights
+- **Full Chinese Localization**: All weather data, city names, and UI elements display in Simplified Chinese
+- **Robust Error Handling**: Intuitive loading indicators and user-friendly error messages
+- **MVVM Architecture**: Clean separation between API, database, and UI components
 
-- Android 7.0 (API 24) or higher
-- Internet connection for weather data updates
-- Location services enabled for current location weather
+## 🛠️ Technology Stack
 
-## License
+- **Language**: Kotlin
+- **Architecture**: MVVM (Model-View-ViewModel)
+- **API Integration**: Retrofit2 + Gson
+- **Local Storage**: Room Database
+- **UI Components**: RecyclerView, SwipeRefreshLayout
+- **Visual Elements**: Day/Night responsive weather icons and dynamic backgrounds
+- **Background Services**: WorkManager for scheduling weather updates
+- **Notifications**: NotificationCompat for weather alerts and reminders
 
-All rights reserved
-=======
-# Weatherapp
-Weather Application 
->>>>>>> 6e36331a6b845699ce1f85d6536f844a09ef960d
+## 🚀 Getting Started
+
+### 1. Clone the Repository
+```bash
+git clone https://github.com/Zhengyang-code/cs4084-group_06.git
+cd cs4084-group_06
+```
+
+### 2. Setup Environment
+- Open the project in Android Studio (Arctic Fox or newer)
+
+### 3. Configure API Key
+- Register for a free API key at [Caiyun Weather Dashboard](https://dashboard.caiyunapp.com/)
+- Add your key to `res/values/strings.xml`:
+```xml
+<string name="caiyun_api_key">YOUR_API_KEY</string>
+```
+
+### 4. API Limitations
+The free tier of Caiyun Weather API:
+- Does not support GPS auto-detection
+- Does not provide hourly or weekly forecasts
+- Example API endpoint:
+  ```
+  https://api.caiyunapp.com/v2.6/YOUR_API_KEY/LONGITUDE,LATITUDE/weather?alert=true&dailysteps=3
+  ```
+
+## 📂 Project Structure
+
+```
+app/
+├── activities/
+│   └── MainActivity.java
+├── fragments/
+│   ├── CurrentWeatherFragment.java
+│   ├── ForecastFragment.java
+│   └── LifestyleSuggestionFragment.java
+├── model/
+│   └── WeatherResponse.java
+├── network/
+│   └── WeatherService.java
+├── adapter/
+│   └── CityAdapter.java
+├── database/
+│   └── WeatherDao.java
+└── res/
+    ├── layout/
+    ├── drawable/
+    └── values/
+```
+
+## 📄 License
+This project is developed for academic purposes and is licensed under the MIT License.
+See the LICENSE file for complete terms.
+
+## 👨‍💻 Contributors
+- Zhengyang Li
+- Cunxin Yu
+- Song Wang
+- Yilong Dong
+
+CS4084 Group 06  
+University of Limerick, 2025
