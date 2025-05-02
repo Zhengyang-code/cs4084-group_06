@@ -1,4 +1,4 @@
- Weather Forecast App ("彩云天气" – Chinese API)
+Weather Forecast App ("彩云天气" – Chinese API)
 An Android weather forecast application developed using the Caiyun Weather ("彩云天气") API.
 The app offers real-time localized weather conditions and travel guidance in Simplified Chinese,
 as the app integrates a Chinese-only API.
