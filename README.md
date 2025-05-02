@@ -2,7 +2,7 @@
 
 An Android weather forecast application leveraging the Caiyun Weather (彩云天气) API to deliver real-time localized weather information and lifestyle recommendations in Simplified Chinese.
 
-![img_1.png](img_1.png)
+![img_2.png](img_2.png)
 ![App Screenshot 2](https://github.com/user-attachments/assets/4cb0a387-a21c-4933-94b3-d73ddf846dab)
 ![App Screenshot 3](https://github.com/user-attachments/assets/bd2b8d3b-f25b-4347-84e0-7ab6fe2c6581)
 
@@ -18,19 +18,21 @@ An Android weather forecast application leveraging the Caiyun Weather (彩云天
 ### User Experience
 - **Intelligent UI**: Automatically switches to dark theme during evening/night hours
 - **City Management**:
-    - Search by city name (supports both Chinese "上海" and English "Shanghai")
-    - Save multiple cities for quick access
-    - Easily switch between saved locations
+  - Search by city name (supports both Chinese "上海" and English "Shanghai")
+  - Save multiple cities for quick access
+  - Easily switch between saved locations
 - **Offline Capability**: Access the most recent weather data when no internet connection is available
 - **Pull-to-Refresh**: Manually update weather information with a simple swipe gesture
 - **Weather Widgets**: Add customizable home screen widgets showing current conditions for favorite cities
 
 ### Lifestyle Recommendations
 - **Daily Suggestions** including:
-    - 🌞 UV Index advisory
-    - 🧣 Temperature comfort indicators
-    - 👕 Clothing recommendations
-    - 🚶 Outdoor activity suitability
+  - 🌞 UV Index advisory
+  - 🧣 Temperature comfort indicators
+  - 👕 Clothing recommendations
+  - 🚶 Outdoor activity suitability
+- **Weather-Based Reminders**: Set customized notifications for specific weather conditions 
+- **Historical Weather Data**: View weather patterns for saved locations over the past week to identify trends
 
 ### Technical Highlights
 - **Full Chinese Localization**: All weather data, city names, and UI elements display in Simplified Chinese
@@ -45,6 +47,8 @@ An Android weather forecast application leveraging the Caiyun Weather (彩云天
 - **Local Storage**: Room Database
 - **UI Components**: RecyclerView, SwipeRefreshLayout
 - **Visual Elements**: Day/Night responsive weather icons and dynamic backgrounds
+- **Background Services**: WorkManager for scheduling weather updates
+- **Notifications**: NotificationCompat for weather alerts and reminders
 
 ## 🚀 Getting Started
 
