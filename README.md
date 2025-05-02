@@ -1,6 +1,6 @@
 # 彩云天气 (Caiyun Weather) Forecast App
 
-An Android weather forecast application leveraging the Caiyun Weather (彩云天气) API to deliver real-time localized weather information and lifestyle recommendations in Simplified Chinese.
+An Android weather forecast application leveraging the Caiyun Weather (彩云天气) API to deliver real-time localized weather information and lifestyle recommendations in Simplified Chinese.Due to API limitations, all text is displayed in Mandarin. We appreciate your understanding.
 
 ![img_1.png](img_1.png)
 ![App Screenshot 2](https://github.com/user-attachments/assets/4cb0a387-a21c-4933-94b3-d73ddf846dab)
