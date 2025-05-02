@@ -47,8 +47,6 @@ An Android weather forecast application leveraging the Caiyun Weather (彩云天
 - **Weather-Based Reminders**: Set customized notifications for specific weather conditions 
 - **Historical Weather Data**: View weather patterns for saved locations over the past week to identify trends
 
-**Weather-Based Reminders**: Set customized notifications for specific weather conditions (e.g., "Remind me to take an umbrella when rain is forecasted")
-**Historical Weather Data**: View weather patterns for saved locations over the past week to identify trends
 
 ### Technical Highlights
 - **Full Chinese Localization**: All weather data, city names, and UI elements display in Simplified Chinese
