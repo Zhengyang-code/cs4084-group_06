@@ -22,7 +22,20 @@ An Android weather forecast application leveraging the Caiyun Weather (彩云天
     - Save multiple cities for quick access
     - Easily switch between saved locations
 - **Offline Capability**: Access the most recent weather data when no internet connection is available
-- **Pull-to-Refresh**: Manually update weather information with a simple swipe gesture
+- **Real-Time Weather Refresh**
+    How to Use: Pull down on the main screen to trigger a refresh.
+    Visual Feedback: A refresh progress bar appears at the top of the screen to indicate the current refresh status.
+    Effect: Once the refresh is complete, the weather information on the screen updates with the latest data, ensuring real-time accuracy.
+- **City Switching Function**
+    Entry Methods:
+    Tap the "Home" icon in the title bar on the main interface.
+    Or swipe from the left edge of the screen to open the city selection menu.
+    Instructions:
+    Use the search bar in the sliding menu to find a desired city.
+    Tap the target city from the list to switch.
+    Interface Response:
+    The sliding menu will automatically close after selecting a new city.
+    The main screen will update to display the weather information of the selected city.
 - **Weather Widgets**: Add customizable home screen widgets showing current conditions for favorite cities
 
 ### Lifestyle Recommendations
