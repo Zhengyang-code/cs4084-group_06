@@ -2,7 +2,7 @@
 
 An Android weather forecast application leveraging the Caiyun Weather (彩云天气) API to deliver real-time localized weather information and lifestyle recommendations in Simplified Chinese.
 
-![img.png](img.png)![App Screenshot 1](https://github.com/user-attachments/assets/76c5151a-858f-429b-8fd0-fc4edabdc146)
+![img_1.png](img_1.png)
 ![App Screenshot 2](https://github.com/user-attachments/assets/4cb0a387-a21c-4933-94b3-d73ddf846dab)
 ![App Screenshot 3](https://github.com/user-attachments/assets/bd2b8d3b-f25b-4347-84e0-7ab6fe2c6581)
 
