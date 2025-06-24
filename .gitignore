@@ -1,15 +1,28 @@
+# 忽略 IDE 配置文件
 *.iml
-.gradle
-/local.properties
-/.idea/caches
-/.idea/libraries
-/.idea/modules.xml
-/.idea/workspace.xml
-/.idea/navEditor.xml
-/.idea/assetWizardSettings.xml
+.idea/
 .DS_Store
-/build
-/captures
-.externalNativeBuild
-.cxx
+
+# 忽略本地配置
 local.properties
+
+# 忽略构建输出
+/build/
+**/build/
+.cxx/
+.externalNativeBuild/
+
+# 忽略 Gradle 缓存
+.gradle/
+
+# 忽略日志与临时文件
+captures/
+*.log
+
+# 忽略测试生成数据
+/test-results/
+*.apk
+*.ap_
+
+# 忽略 Android Studio 导航等临时配置
+*.hprof
