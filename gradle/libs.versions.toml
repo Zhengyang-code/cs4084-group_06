@@ -1,0 +1,32 @@
+[versions]
+androidxCore = "1.12.0"  # 核心版本
+lifecycle = "2.7.0"       # 生命周期组件
+kotlin = "1.9.22"         # Kotlin 版本
+compose = "1.6.1"         # Compose 版本
+appcompat = "1.6.1"
+activity = "1.8.2"
+constraintlayout = "2.1.4"
+junit = "4.13.2"
+androidx-junit = "1.1.5"
+espresso-core = "3.5.1"
+
+[libraries]
+# AndroidX 库
+androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "androidxCore" }
+androidx-lifecycle-runtime = { group = "androidx.lifecycle", name = "lifecycle-runtime-ktx", version.ref = "lifecycle" }
+
+# Compose 库
+compose-ui = { group = "androidx.compose.ui", name = "ui", version.ref = "compose" }
+compose-material3 = { group = "androidx.compose.material3", name = "material3", version.ref = "compose" }
+
+appcompat = { module = "androidx.appcompat:appcompat", version.ref = "appcompat" }
+
+androidx-activity = { module = "androidx.activity:activity-ktx", version.ref = "activity" }
+androidx-constraintlayout = { module = "androidx.constraintlayout:constraintlayout", version.ref = "constraintlayout" }
+junit = { module = "junit:junit", version.ref = "junit" }
+androidx-junit = { module = "androidx.test.ext:junit", version.ref = "androidx-junit" }
+androidx-espresso-core = { module = "androidx.test.espresso:espresso-core", version.ref = "espresso-core" }
+
+[plugins]
+android-application = { id = "com.android.application", version = "8.4.0" }
+kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
